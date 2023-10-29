@@ -24,6 +24,7 @@
         <junit.version>4.13.1</junit.version>
         <lombok.version>1.18.28</lombok.version>
         <univocity.version>2.9.1</univocity.version>
+        <springboot.version>2.7.15</springboot.version>
     </properties>
 
     <dependencyManagement>
@@ -59,7 +60,26 @@
                 <artifactId>univocity-parsers</artifactId>
                 <version>${univocity.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter</artifactId>
+                <version>${springboot.version}</version>
+                <type>pom</type>
+            </dependency>
 
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-test</artifactId>
+                <version>${springboot.version}</version>
+                <type>pom</type>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-web</artifactId>
+                <version>${springboot.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     

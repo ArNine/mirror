@@ -1,6 +1,7 @@
 package com.archer.mirror.mirrorservice.controller;
 
 import com.archer.mirror.mirrorservice.service.FileProcess;
+import com.archer.mirror.mirrorservice.service.FileProcessService;
 import com.archer.mirror.mirrorservice.utils.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -19,7 +20,7 @@ public class FileUploadController {
 
 
     @Autowired
-    private FileProcess fileService;
+    private FileProcessService fileService;
 
     /**
      *
