@@ -1,13 +1,13 @@
 package com.archer.mirror.mirrorcore.api
 
-import com.archer.mirror.mirrorcore.common.{FileTaskFactory, HiveTaskFactory, SourceType, TaskFactory}
+import com.archer.mirror.mirrorcore.common.{DatasetCompare, FileTaskFactory, HiveTaskFactory, SourceType, TaskFactory}
 import com.oracle.webservices.internal.api.message.PropertySet.Property
 
 import scala.reflect.runtime.universe._
 import scala.reflect.runtime.{universe => ru}
 class Application {
 
-  def create(property: String): Unit = {
+  def create(property: String): DatasetCompare = {
     // split first data source type and prop
     val baseSourceType = ""
     val compareSourceType = ""
@@ -15,12 +15,11 @@ class Application {
     val compareDataFactory = createObjectByClassName(compareSourceType)
     val baseSource = baseDataFactory.createSource(property)
     val compareSource = compareDataFactory.createSource(property)
-
-
+    new DatasetCompare(baseSource, compareSource)
   }
 
 
-  def createObjectByClassName(className: String): TaskFactory = {
+  private def createObjectByClassName(className: String): TaskFactory = {
     val runtimeMirror: ru.Mirror = ru.runtimeMirror(getClass.getClassLoader)
     try {
       val classSymbol: ClassSymbol = runtimeMirror.staticClass(className)
