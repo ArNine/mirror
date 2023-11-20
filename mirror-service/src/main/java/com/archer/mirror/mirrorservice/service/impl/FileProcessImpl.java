@@ -1,7 +1,8 @@
-package com.archer.mirror.mirrorservice.service;
+package com.archer.mirror.mirrorservice.service.impl;
 
 
 import com.archer.mirror.mirrorservice.bean.DataCompareMeta;
+import com.archer.mirror.mirrorservice.service.FileProcessService;
 import com.archer.mirror.mirrorservice.utils.FileUtils;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
@@ -18,12 +19,11 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 
 @Service
-public class FileProcess implements FileProcessService{
+public class FileProcessImpl implements FileProcessService {
 
     @Override
     public DataCompareMeta uploadFile(MultipartFile[] files, Model model) {
