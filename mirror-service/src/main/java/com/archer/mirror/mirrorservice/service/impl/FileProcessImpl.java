@@ -1,66 +1,88 @@
 package com.archer.mirror.mirrorservice.service.impl;
 
 
-import com.archer.mirror.mirrorservice.bean.DataCompareMeta;
 import com.archer.mirror.mirrorservice.service.FileProcessService;
-import com.archer.mirror.mirrorservice.utils.FileUtils;
-import com.univocity.parsers.csv.CsvParser;
-import com.univocity.parsers.csv.CsvParserSettings;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.Model;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.Future;
+
+import static org.apache.poi.ss.usermodel.CellType.NUMERIC;
 
 
 @Service
 public class FileProcessImpl implements FileProcessService {
 
-    @Override
-    public DataCompareMeta uploadFile(MultipartFile[] files, Model model) {
-        try {
-            ArrayList<Map<String, String>> colData = new ArrayList<>();
-            // 1. upload file
-            for (MultipartFile file : files) {
-                HashMap<String, String> col = new HashMap<>();
-                if (file.getSize() <= 0) {
-                    continue;
-                }
-                final String newFileName = FileUtils.save(file, "");
-                // 2. create json prop and send to mirror-core
-                // TODO it should be only read 1 rows
-                try (Reader inputReader = new InputStreamReader(Files.newInputStream(new File(newFileName + ".csv").toPath()), StandardCharsets.UTF_8)) {
-                    CsvParser parser = new CsvParser(new CsvParserSettings());
-                    List<String[]> parsedRows = parser.parseAll(inputReader);
-                    String[] colsName = parsedRows.get(0);
-                    for (int i = 0;i < colsName.length;i ++) {
-                        col.put("c" + i, colsName[i]);
-                    }
 
-                } catch (IOException e) {
-                    // handle exception
-                }
-                colData.add(col);
-            }
-            DataCompareMeta dataCompareMeta = new DataCompareMeta();
-            dataCompareMeta.setBase(colData.get(0));
-            dataCompareMeta.setBase(colData.get(1));
-            dataCompareMeta.setPrimary(Collections.singletonList("c10"));
-            // 3. asynchronous  for result
-            Future<String> future = this.sendToMirror();
-            return dataCompareMeta;
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
+    private static final int NUM_ROWS_TO_READ = 20;
+
+    @Override
+    public String uploadFile(MultipartFile file) throws Exception{
+        String fileName = "uploaded_excel.xlsx";
+        InputStream inputStream = file.getInputStream();
+         FileOutputStream outputStream = new FileOutputStream(fileName);
+        byte[] buffer = new byte[1024];
+        int bytesRead;
+        while ((bytesRead = inputStream.read(buffer)) != -1) {
+            outputStream.write(buffer, 0, bytesRead);
         }
+        return fileName;
+    }
+
+    public Map<String, Object> readFile(String filePath) throws IOException {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            FileInputStream file = new FileInputStream(filePath);
+            //Create Workbook instance holding reference to .xlsx file
+            XSSFWorkbook wb = new XSSFWorkbook(file);
+            //Get first/desired sheet from the workbook
+            XSSFSheet ws = wb.getSheetAt(0);
+
+            Row headerRow = ws.getRow(0);
+            List<String> headers = new LinkedList<>();
+            for (Cell cell : headerRow) {
+                headers.add(cell.getStringCellValue());
+            }
+            result.put("headers", headers);
+            System.out.println(headers);
+            //Iterate through each rows one by one
+            List<Map<String, Object>> data = new LinkedList<>();
+            int rowCount = Math.min(ws.getPhysicalNumberOfRows(), NUM_ROWS_TO_READ);
+            for (int i = 1;i < rowCount;i ++) {
+                Row row = ws.getRow(i);
+                //For each row, iterate through all the columns
+                Map<String, Object> rowData = new HashMap<>();
+                for (int j = 0; j < headers.size(); j++) {
+                    Cell cell = row.getCell(j);
+                    if (cell != null) {
+                        switch (cell.getCellType()) {
+                            case NUMERIC:
+                                rowData.put(headers.get(j), cell.getNumericCellValue());
+                                break;
+                            case STRING:
+                                rowData.put(headers.get(j), cell.getStringCellValue());
+                                break;
+                        }
+                    }
+                }
+                data.add(rowData);
+            }
+            result.put("data", data);
+            file.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return result;
     }
 
 

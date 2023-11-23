@@ -1,8 +1,8 @@
 package com.archer.mirror.mirrorservice.common;
 
-public class Result<T> {
+public class Response<T> {
 
-    private static final Result<Void> OK = success();
+    private static final Response<Void> OK = success();
 
     private int code = 0;
 
@@ -10,13 +10,13 @@ public class Result<T> {
 
     private T data;
 
-    public static <T> Result<T> success() {
-        return new Result<>();
+    public static <T> Response<T> success() {
+        return new Response<>();
     }
-    public static <T> Result<T> success(T data) {
-        Result<T> result = success();
-        result.setData(data);
-        return result;
+    public static <T> Response<T> success(T data) {
+        Response<T> response = success();
+        response.setData(data);
+        return response;
     }
 
     public int getCode() {
