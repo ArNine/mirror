@@ -1,4 +1,4 @@
-package com.archer.mirror.mirrorservice.bean;
+package com.archer.mirror.mirrorservice.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,7 +11,7 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DataCompareMeta {
-    private Map<String, String> base;
-    private Map<String, String> compare;
+    private SourceType base;
+    private SourceType compare;
     private List<String> primary;
 }

@@ -29,7 +29,7 @@ public class FileUploadController {
         String fileName = fileService.uploadFile(file);
         // read top 20 data
         Map<String, Object> result = fileService.readFile(fileName);
-
+       
         return Response.success(result);
     }
 

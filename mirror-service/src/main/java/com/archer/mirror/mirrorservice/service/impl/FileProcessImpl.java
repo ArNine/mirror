@@ -2,6 +2,7 @@ package com.archer.mirror.mirrorservice.service.impl;
 
 
 import com.archer.mirror.mirrorservice.service.FileProcessService;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
@@ -28,9 +29,9 @@ public class FileProcessImpl implements FileProcessService {
 
     @Override
     public String uploadFile(MultipartFile file) throws Exception{
-        String fileName = "uploaded_excel.xlsx";
         InputStream inputStream = file.getInputStream();
-         FileOutputStream outputStream = new FileOutputStream(fileName);
+        String fileName = DigestUtils.md5Hex(inputStream) + ".xlsx";
+        FileOutputStream outputStream = new FileOutputStream(fileName);
         byte[] buffer = new byte[1024];
         int bytesRead;
         while ((bytesRead = inputStream.read(buffer)) != -1) {
