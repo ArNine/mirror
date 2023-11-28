@@ -1,13 +1,13 @@
 package com.archer.mirror.mirrorservice.service;
 
-import com.archer.mirror.mirrorservice.bean.DataCompareMeta;
-import org.springframework.ui.Model;
-import org.springframework.web.multipart.MultipartFile;
 
+import org.springframework.web.multipart.MultipartFile;
+import java.util.Map;
 import java.util.concurrent.Future;
 
 public interface FileProcessService {
 
-    DataCompareMeta uploadFile(MultipartFile[] files, Model model);
+    String uploadFile(MultipartFile file) throws Exception;
+    Map<String, Object> readFile(String filePath) throws Exception;
     Future<String> sendToMirror() throws InterruptedException;
 }
